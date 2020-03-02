@@ -30,3 +30,4 @@ class ParentModel(BaseModel):
     id: int
     name: str
     child: ChildModel
+    date_creation: datetime
