@@ -15,7 +15,8 @@ class TestParentModel(unittest.TestCase):
                 "children": [
                     {"id": 3, "age": 4.5}
                 ]
-            }
+            },
+            "date_creation": "2020-03-02 00:00:00"
         }
 
         pm = ParentModel(mock)
