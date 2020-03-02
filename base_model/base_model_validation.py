@@ -13,32 +13,28 @@ class BaseModelValidation:
 
         self._class_name = get_class_name(model_class)
         self._model_class = model_class
-        _members = ([x[1] for x in inspect.getmembers(model_class)
-                     if x[0] == '__annotations__'] + [None])[0]
+        _members = typing.get_type_hints(model_class)
         if not _members:
             raise BaseModelException(
                 f"Class {self._class_name} has no typed declared members")
 
         _validations = {}
-        _type_hints = typing.get_type_hints(model_class)
 
         for member in _members:
             _member_type = _members[member]
-            _list_of = None
-            if issubclass(_member_type, typing.List):
-                _list_of = self._get_list_of(_member_type)
-                if _list_of is None:
-                    raise BaseModelException("Invalid type hint {0} for field {1} of model {2}".format(
-                        _member_type,
-                        member,
-                        self._class_name
-                    ))
+
+            _aggregator_type, _aggregate_type = self._get_aggregator(
+                member, _member_type)
+
+            if _aggregator_type:
+                _member_type = AttributeValidation.get_aggregator_type(_aggregator_type)
 
             _validations[member] = AttributeValidation(
                 model_class=model_class.__class__,
                 attribute_name=member,
                 attribute_type=_member_type,
-                list_of=_list_of)
+                aggregator_type=_aggregator_type,
+                aggregate_type=_aggregate_type)                
 
         self._attributes_validations = _validations
         self._get_extra_validations()
@@ -94,11 +90,23 @@ class BaseModelValidation:
                 attr_name = details[0].strip()
                 if attr_name in self._attributes_validations:
                     attr_props = ' '.join([d.strip() for d in details[1:]])
-                    self._attributes_validations[attr_name].set_extra_validations(attr_props)
+                    self._attributes_validations[attr_name].set_extra_validations(
+                        attr_props)
 
-    def _get_list_of(self, field_type):
-        try:
-            type_of_list = field_type.__args__
-        except:
-            type_of_list = None
-        return type_of_list
+    def _get_aggregator(self, field_name, member_type):
+        _aggregator_type, _aggregate_type = None, None
+        if getattr(member_type, '__args__', None) and \
+                getattr(member_type, '_name', None):
+
+            if member_type._name in ["List", "Dict", "Set", "Tuple"]:
+                _aggregator_type = member_type._name
+                _aggregate_type = member_type.__args__
+                if len(_aggregate_type)>0:
+                    _aggregate_type = _aggregate_type[0]
+            else:
+                raise BaseModelException("Invalid type hint {0} for field {1} of model {2}".format(
+                    member_type,
+                    field_name,
+                    self._class_name
+                ))
+        return _aggregator_type, _aggregate_type

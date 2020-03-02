@@ -36,13 +36,16 @@ class TestBaseModel(unittest.TestCase):
             "id": 0,
             "name": "Guionardo",
             "date": "2020-03-01",
-            "date_time": datetime.now()
+            "date_time": datetime.now(),
+            "names": "abcd"
         }
         bm = TestModel(mock)
 
         mock['date'] = bm.date
-
-        self.assertDictEqual(mock, bm.to_dict())
+        mock['names'] = bm.names
+        mock['guid'] = bm.guid
+        bm_dict = bm.to_dict()
+        self.assertDictEqual(mock, bm_dict)
 
     def test_fail_load(self):
         bm = TestModel()

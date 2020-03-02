@@ -5,12 +5,14 @@ from base_model.base_model_exception import BaseModelException
 from base_model.base_model_validation import BaseModelValidation
 from base_model.not_found_attribute import NotFoundAttribute
 from base_model.tools import get_class_name
+from typing import List, Dict, Set, Tuple
 
 
 class BaseModel:
 
     def __init__(self, from_object=None):
-        self._validations: BaseModelValidation = BaseModelValidation.get_validation(self.__class__)
+        self._validations: BaseModelValidation = BaseModelValidation.get_validation(
+            self.__class__)
         if from_object:
             self.load_from_object(from_object)
         else:
@@ -34,7 +36,8 @@ class BaseModel:
         return result
 
     def get_attribute_value(self, field_name):
-        attr_validation: AttributeValidation = self._validations.get_attribute_validation(field_name)
+        attr_validation: AttributeValidation = self._validations.get_attribute_validation(
+            field_name)
         field_value = getattr(self, field_name, NotFoundAttribute())
 
         if isinstance(field_value, NotFoundAttribute):
@@ -47,29 +50,36 @@ class BaseModel:
 
     def load_from_object(self, from_object):
         if isinstance(from_object, str):
-            try:
-                from_object = loads(from_object)
-            except Exception as exc:
-                raise BaseModelException("Error on parsing JSON content for model {0}".format(
-                    get_class_name(self.__class__)
-                ))
+            from_object = self.validate_from_str(from_object)
 
-        not_found_attributes = []
+        not_found_attributes = set()
         normalization_error_attributes = []
         for field_name in self._validations.get_fields():
             field_value = self._get_attribute_value(from_object, field_name)
-            attr_validation: AttributeValidation = self._validations.get_attribute_validation(field_name)
+            attr_validation: AttributeValidation = self._validations.get_attribute_validation(
+                field_name)
+            required_field = attr_validation and attr_validation.is_required
+            if required_field and \
+                    (field_value is None or isinstance(field_value, NotFoundAttribute)):
+                not_found_attributes.add(field_name)
+                continue
+
             if isinstance(field_value, NotFoundAttribute):
-                if attr_validation and \
-                        attr_validation.is_required:
-                    not_found_attributes.append(field_name)
-                    continue
-                elif attr_validation:
+                if attr_validation:
                     field_value = attr_validation.get_default(self)
                 else:
                     field_value = None
 
-            success, field_value = attr_validation.normalize_data(field_value)
+            if attr_validation.is_aggregate:
+                if field_value is None:
+                    success = True
+                    field_value = attr_validation.get_default(self)
+                else:
+                    success, field_value = attr_validation.normalize_aggregator(self,field_value)
+
+            else:
+                success, field_value = attr_validation.normalize_data(
+                    field_value)
             if not success:
                 normalization_error_attributes.append(field_name)
             else:
@@ -85,6 +95,18 @@ class BaseModel:
                 normalization_error_attributes, get_class_name(self.__class__)
             ))
         return True
+
+    def validate_from_str(self, from_object):
+        """
+        Parse object from json string
+        """
+        try:
+            from_object = loads(from_object)
+        except Exception as exc:
+            raise BaseModelException("Error on parsing JSON content for model {0}".format(
+                get_class_name(self.__class__)
+            ))
+        return from_object
 
     @staticmethod
     def _get_attribute_value(from_object: object, field_name: object) -> object:
