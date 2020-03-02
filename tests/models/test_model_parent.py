@@ -4,6 +4,14 @@ from uuid import uuid1
 from typing import List
 
 
+class GranChildModel(BaseModel):
+    """
+    id: required
+    """
+    id: int
+    age: float
+
+
 class ChildModel(BaseModel):
     """
     id: required
@@ -11,6 +19,7 @@ class ChildModel(BaseModel):
     """
     id: int
     name: str
+    children: List[GranChildModel]
 
 
 class ParentModel(BaseModel):
