@@ -11,7 +11,10 @@ class TestParentModel(unittest.TestCase):
             "name": "PARENT",
             "child": {
                 "id": 2,
-                "name": "CHILD"
+                "name": "CHILD",
+                "children": [
+                    {"id": 3, "age": 4.5}
+                ]
             }
         }
 

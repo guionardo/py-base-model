@@ -165,7 +165,7 @@ class AttributeValidation:
             for v in value:
                 success, data = self.normalize_data(v, self._aggregate_type)
                 normalized_values.append(None if not success else data)
-            
+
             return True, normalized_values
         except:
             return False, None
