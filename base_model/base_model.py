@@ -75,7 +75,8 @@ class BaseModel:
                     success = True
                     field_value = attr_validation.get_default(self)
                 else:
-                    success, field_value = attr_validation.normalize_aggregator(self,field_value)
+                    success, field_value = attr_validation.normalize_aggregator(
+                        self, field_value)
 
             else:
                 success, field_value = attr_validation.normalize_data(

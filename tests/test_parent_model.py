@@ -1,6 +1,6 @@
 import unittest
 
-from tests.models.test_model_parent import ParentModel, ChildModel
+from tests.models.test_model_parent import ChildModel, ParentModel
 
 
 class TestParentModel(unittest.TestCase):
@@ -23,7 +23,6 @@ class TestParentModel(unittest.TestCase):
         self.assertIsNotNone(pm)
 
     def test_child(self):
-        mock = {"id": 1, "name": "child"}
         cm = ChildModel()
 
         self.assertIsNotNone(cm)
