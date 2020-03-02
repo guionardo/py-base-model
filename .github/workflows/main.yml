@@ -1,0 +1,21 @@
+name: CI
+
+on:
+  pull_request:
+    branches:       
+      - develop        
+
+jobs:
+  Codecov:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@develop
+      - uses: codecov/codecov-action@v1.0.5
+        with:
+          token: c4842941-078e-4303-b84f-5fc8975134b7
+          file: ./coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: true      
