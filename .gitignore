@@ -3,3 +3,6 @@
 .vscode
 .pycharm
 .idea
+build
+dist
+*.egg-info
