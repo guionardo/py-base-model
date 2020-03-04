@@ -11,8 +11,8 @@ from typing import List, Dict, Set, Tuple
 class BaseModel:
 
     def __init__(self, from_object=None):
-        self._validations: BaseModelValidation = BaseModelValidation.get_validation(
-            self.__class__)
+        self._validations: BaseModelValidation = \
+            BaseModelValidation.get_validation(self.__class__)
         if from_object:
             self.load_from_object(from_object)
         else:

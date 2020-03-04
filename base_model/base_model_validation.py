@@ -94,27 +94,31 @@ class BaseModelValidation:
                         attr_props)
 
     def _get_aggregator(self, field_name, member_type):
-        _aggregator_type, _aggregate_type = None, None
-        if getattr(member_type, '__args__', None):
-            str_mt = str(member_type)
-            if str_mt.startswith('typing.List'):
-                _aggregator_type = list
-                if len(member_type.__args__) > 0:
-                    _aggregate_type = member_type.__args__[0]
-            elif str_mt.startswith('typing.Dict'):
-                _aggregator_type = dict
-            elif str_mt.startswith('typing.Set'):
-                _aggregator_type = set
-            elif str_mt.startswith('typing.Tuple'):
-                _aggregator_type = tuple
 
-            if _aggregator_type and not _aggregate_type:
+        if not getattr(member_type, '__args__', None):
+            return None, None
+
+        _aggregator_type, _aggregate_type = None, None
+        str_mt = str(member_type)
+        if str_mt.startswith('typing.List'):
+            _aggregator_type = list
+            if len(member_type.__args__) > 0:
+                _aggregate_type = member_type.__args__[0]
+        elif str_mt.startswith('typing.Dict'):
+            _aggregator_type = dict
+        elif str_mt.startswith('typing.Set'):
+            _aggregator_type = set
+        elif str_mt.startswith('typing.Tuple'):
+            _aggregator_type = tuple
+
+        if _aggregator_type:
+            if not _aggregate_type:
                 _aggregate_type = member_type.__args__
 
-            else:
-                raise BaseModelException("Invalid type hint {0} for field {1} of model {2}".format(
-                    member_type,
-                    field_name,
-                    self._class_name
-                ))
+        else:
+            raise BaseModelException("Invalid type hint {0} for field {1} of model {2}".format(
+                member_type,
+                field_name,
+                self._class_name
+            ))
         return _aggregator_type, _aggregate_type
