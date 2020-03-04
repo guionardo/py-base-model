@@ -1,4 +1,4 @@
-from datetime import datetime, date
+from datetime import datetime, date, time
 
 from dateutil.parser import parse
 
@@ -18,6 +18,12 @@ class AttributeValidation:
         '%Y-%m-%d %H:%M:%S.%f',
         '%Y-%m-%d %H:%M:%S.%f%z',
         '%d/%m/%Y %H:%M:%S'
+    ]
+
+    TIME_FORMATS = [
+        '%H:%M:%S',
+        '%H:%M',
+        '%H:%M:%S.%f'
     ]
 
     def __init__(self, model_class, attribute_name: str, attribute_type, aggregator_type=None, aggregate_type=None):
@@ -90,16 +96,21 @@ class AttributeValidation:
         :param _aggregate_type: 
         :returns: (bool success, object converted value)
         """
-        if isinstance(value, self._type):
-            return True, value
         if _type is None:
             _type = self._type
             _aggregate_type = self._aggregate_type
+
+        if isinstance(value, self._type):
+            return True, value
 
         if _type == date:
             success, value = self._normalize_date(value)
         elif _type == datetime:
             success, value = self._normalize_datetime(value)
+        elif _type == time:
+            success, value = self._normalize_time(value)
+        elif _type == bool:
+            success, value = self._normalize_bool(value)
         elif _aggregate_type:
             success, value = self._normalize_aggregator(value, _aggregate_type)
         else:
@@ -110,6 +121,12 @@ class AttributeValidation:
                 success = False
 
         return success, value
+
+    def _normalize_bool(self, value) -> bool:
+        try:
+            return True, str(value).upper() in ['TRUE', 'T', 'Y', '1']
+        except:
+            return False, None
 
     def _normalize_date(self, value) -> date:
         for format in self.DATE_FORMATS:
@@ -139,6 +156,21 @@ class AttributeValidation:
         except:
             return False, None
 
+    def _normalize_time(self, value):
+        for format in self.TIME_FORMATS:
+            try:
+                _time = datetime.strptime(value, format)
+                return True, _time.time()
+            except:
+                # try another
+                pass
+
+        try:
+            _time = parse(value)
+            return True, _time.time()
+        except:
+            return False, None
+
     def normalize_aggregator(self, model_instance, value, _aggregator_type=None):
         if value is None:
             return True, self.get_default(model_instance)
@@ -149,10 +181,10 @@ class AttributeValidation:
             return self._normalize_aggregator_list(model_instance, value)
         elif _aggregator_type == dict:
             return self._normalize_aggregator_dict(model_instance, value)
-        elif _aggregator_type == set:
-            return self._normalize_aggregator_set(model_instance, value)
-        elif _aggregator_type == tuple:
-            return self._normalize_aggregator_tuple(model_instance, value)
+        # elif _aggregator_type == set:
+        #     return self._normalize_aggregator_set(model_instance, value)
+        # elif _aggregator_type == tuple:
+        #     return self._normalize_aggregator_tuple(model_instance, value)
 
         return False, None
 
@@ -171,7 +203,22 @@ class AttributeValidation:
             return False, None
 
     def _normalize_aggregator_dict(self, model_instance, value):
-        raise NotImplementedError()
+        if not isinstance(value, dict):
+            return False, None
+
+        try:
+            normalized_values = dict()
+            for key in value:
+                v = value[key]
+                success, key = self.normalize_data(key, self._aggregate_type[0])
+                if success:
+                    success, data = self.normalize_data(v, self._aggregate_type[1])
+                    normalized_values[key] = None if not success else data
+                if not success:
+                    return False, None
+            return True, normalized_values
+        except:
+            return False, None
 
     def _normalize_aggregator_set(self, model_instance, value):
         raise NotImplementedError()
@@ -181,27 +228,21 @@ class AttributeValidation:
 
     @staticmethod
     def get_aggregator_type(aggregator):
-        if aggregator == "List":
-            return list
-        elif aggregator == "Dict":
-            return dict
-        elif aggregator == "Set":
-            return set
-        elif aggregator == "Tuple":
-            return tuple
-        else:
-            return None
+        if aggregator in [list, dict, set, tuple]:
+            return aggregator
+
+        return None
 
     @staticmethod
     def get_aggregator_default_method(aggregator):
 
-        if aggregator == "List":
+        if aggregator == list:
             return lambda instance: list()
-        elif aggregator == "Dict":
+        elif aggregator == dict:
             return lambda instance: dict()
-        elif aggregator == "Set":
+        elif aggregator == set:
             return lambda instance: set()
-        elif aggregator == "Tuple":
+        elif aggregator == tuple:
             return lambda instance: tuple()
 
         return lambda instance: None

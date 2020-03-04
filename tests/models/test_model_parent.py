@@ -1,7 +1,7 @@
-from base_model.base_model import BaseModel
-from datetime import date, datetime
-from uuid import uuid1
+from datetime import datetime
 from typing import List
+
+from base_model.base_model import BaseModel
 
 
 class GranChildModel(BaseModel):

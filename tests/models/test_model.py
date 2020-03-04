@@ -1,7 +1,8 @@
-from base_model.base_model import BaseModel
-from datetime import date, datetime
-from uuid import uuid1
+from datetime import date, datetime, time
 from typing import List
+from uuid import uuid1
+
+from base_model.base_model import BaseModel
 
 
 class TestModel(BaseModel):
@@ -19,6 +20,7 @@ class TestModel(BaseModel):
     date_time: datetime
     guid: str
     names: List[str]
+    alarm: time
 
     def uuid1(self):
         return str(uuid1())
