@@ -1,7 +1,8 @@
-from base_model.base_model import BaseModel
 from datetime import date, datetime, time
-from uuid import uuid1
 from typing import List
+from uuid import uuid1
+
+from base_model.base_model import BaseModel
 
 
 class TestModel(BaseModel):
