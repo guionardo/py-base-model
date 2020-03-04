@@ -3,6 +3,7 @@ from datetime import datetime
 
 from base_model.base_model import BaseModel
 from tests.models.test_model import TestModel
+from tests.models.test_model_list import TestModelList
 
 
 class TestBaseModel(unittest.TestCase):
@@ -27,7 +28,8 @@ class TestBaseModel(unittest.TestCase):
             "id": 0,
             "name": "Guionardo",
             "date": "2020-03-01",
-            "date_time": datetime.now()
+            "date_time": datetime.now(),
+            "time": "10:12:13"
         }
         self.assertTrue(bm.load_from_object(mock))
 
@@ -37,13 +39,15 @@ class TestBaseModel(unittest.TestCase):
             "name": "Guionardo",
             "date": "2020-03-01",
             "date_time": datetime.now(),
-            "names": "abcd"
+            "names": "abcd",
+            "alarm":"10:20:30"
         }
         bm = TestModel(mock)
 
         mock['date'] = bm.date
         mock['names'] = bm.names
         mock['guid'] = bm.guid
+        mock["alarm"]=bm.alarm
         bm_dict = bm.to_dict()
         self.assertDictEqual(mock, bm_dict)
 
@@ -56,3 +60,10 @@ class TestBaseModel(unittest.TestCase):
         }
         with self.assertRaises(Exception):
             bm.load_from_object(mock)
+
+    def test_list_load(self):
+        mock = {
+            "names": ["Guionardo","Marines"]
+        }
+        bm = TestModelList(mock)
+        self.assertIsInstance(bm,TestModelList)

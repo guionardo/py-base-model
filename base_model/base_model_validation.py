@@ -27,7 +27,7 @@ class BaseModelValidation:
                 member, _member_type)
 
             if _aggregator_type:
-                _member_type = AttributeValidation.get_aggregator_type(_aggregator_type)
+                _member_type = _aggregator_type
 
             _validations[member] = AttributeValidation(
                 model_class=model_class.__class__,
@@ -95,13 +95,20 @@ class BaseModelValidation:
 
     def _get_aggregator(self, field_name, member_type):
         _aggregator_type, _aggregate_type = None, None
-        if getattr(member_type, '__args__', None) and \
-                getattr(member_type, '_name', None):
+        if getattr(member_type, '__args__', None):
+            str_mt=str(member_type)
+            if str_mt.startswith('typing.List'):
+                _aggregator_type = list
+            elif str_mt.startswith('typing.Dict'):
+                _aggregator_type = dict
+            elif str_mt.startswith('typing.Set'):
+                _aggregator_type = set
+            elif str_mt.startswith('typing.Tuple'):
+                _aggregator_type = tuple
 
-            if member_type._name in ["List", "Dict", "Set", "Tuple"]:
-                _aggregator_type = member_type._name
+            if _aggregator_type:
                 _aggregate_type = member_type.__args__
-                if len(_aggregate_type)>0:
+                if len(_aggregate_type) > 0:
                     _aggregate_type = _aggregate_type[0]
             else:
                 raise BaseModelException("Invalid type hint {0} for field {1} of model {2}".format(

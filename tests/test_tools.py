@@ -12,4 +12,4 @@ class TestTools(unittest.TestCase):
 
     def test_get_class_name(self):
         class_name = get_class_name(self.__class__)
-        self.assertEqual(class_name, 'tests.test_tools.TestTools')
+        self.assertTrue(class_name.endswith('test_tools.TestTools'))
