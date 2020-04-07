@@ -33,7 +33,7 @@ def get_definitions(rel_path, *words):
 
 
 long_description = read('README.md')
-base_folder = 'cache_gs'
+base_folder = 'base_model'
 packages = find_packages(where=base_folder)
 _version, _description, _author, _author_email = get_definitions(
     os.path.join(base_folder, '__init__.py'),
