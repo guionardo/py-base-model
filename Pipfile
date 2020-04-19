@@ -9,8 +9,10 @@ autopep8 = "*"
 coverage = "*"
 setuptools = "*"
 twine = "*"
+wheel = "*"
 
 [packages]
 python-dateutil = "*"
+orjson = "*"
 
 [requires]

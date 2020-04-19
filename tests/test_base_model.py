@@ -2,18 +2,18 @@ import unittest
 from datetime import datetime
 
 from base_model.base_model import BaseModel
+from base_model.json import dumps
 from tests.models.test_model import TestModel
 
-from json import dumps
 
 class TestBaseModel(unittest.TestCase):
 
     def setUp(self) -> None:
-        self.mock = mock = {
+        self.mock = {
             "id": 0,
             "name": "Guionardo",
             "date": "2020-03-01",
-            "guid":"12345678",
+            "guid": "12345678",
             "date_time": datetime.now(),
             "names": ["abcd"],
             "alarm": "10:20:30"
@@ -34,16 +34,16 @@ class TestBaseModel(unittest.TestCase):
         bm.clear()
 
     def test_from_json(self):
-        mock = dumps(self.mock,default=str)
+        mock = dumps(self.mock)
         bm = TestModel(mock)
         bm_dict = bm.to_dict()
         mock_dict = self.mock.copy()
-        mock_dict['date']=bm.date
-        mock_dict['alarm']=bm.alarm
+        mock_dict['date'] = bm.date
+        mock_dict['alarm'] = bm.alarm
         self.assertDictEqual(mock_dict, bm_dict)
 
     def test_dict(self):
-        mock=self.mock.copy()
+        mock = self.mock.copy()
 
         bm = TestModel(mock)
 
@@ -63,4 +63,3 @@ class TestBaseModel(unittest.TestCase):
         }
         with self.assertRaises(Exception):
             bm.load_from_object(mock)
-

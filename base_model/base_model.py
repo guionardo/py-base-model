@@ -1,11 +1,9 @@
-from json import loads
-
 from base_model.attribute_validation import AttributeValidation
 from base_model.base_model_exception import BaseModelException
 from base_model.base_model_validation import BaseModelValidation
+from base_model.json import dumps, loads
 from base_model.not_found_attribute import NotFoundAttribute
 from base_model.tools import get_class_name
-from typing import List, Dict, Set, Tuple
 
 
 class BaseModel:
@@ -35,9 +33,12 @@ class BaseModel:
         }
         return result
 
+    def to_json(self):
+        return dumps(self.to_dict(), default=str)
+
     def get_attribute_value(self, field_name):
-        attr_validation: AttributeValidation = self._validations.get_attribute_validation(
-            field_name)
+        attr_validation: AttributeValidation = \
+            self._validations.get_attribute_validation(field_name)
         field_value = getattr(self, field_name, NotFoundAttribute())
 
         if isinstance(field_value, NotFoundAttribute):
@@ -104,8 +105,9 @@ class BaseModel:
         try:
             from_object = loads(from_object)
         except Exception as exc:
-            raise BaseModelException("Error on parsing JSON content for model {0}".format(
-                get_class_name(self.__class__)
+            raise BaseModelException("Error on parsing JSON content for model {0}: {1}".format(
+                get_class_name(self.__class__),
+                str(exc)
             ))
         return from_object
 
