@@ -14,5 +14,8 @@ wheel = "*"
 [packages]
 python-dateutil = "*"
 orjson = "*"
+setuptools = "*"
+wheel = "*"
+twine = "*"
 
 [requires]

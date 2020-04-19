@@ -12,6 +12,8 @@ jobs:
       uses: actions/setup-python@master
       with:
         python-version: 3.7
+    - name: python-lint
+      uses: CyberZHG/github-action-python-lint@0.0.2
     - name: Generate coverage report
       run: |
         pip install -r requirements-testing.txt        
