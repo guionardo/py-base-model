@@ -15,12 +15,10 @@ def get_class_name(model_class):
 def parse_quotes(text: str) -> list:
     between_quotes = re.findall("\"(.*?)\"", text)
     for between in between_quotes:
-        text = text.replace(between,between.replace(' ','§'))
+        text = text.replace(between, between.replace(' ', '§'))
 
     no_spaces_list = text.split(' ')
     for i in range(len(no_spaces_list)):
-        no_spaces_list[i] = no_spaces_list[i].replace('§',' ')
+        no_spaces_list[i] = no_spaces_list[i].replace('§', ' ')
 
     return no_spaces_list
-
-

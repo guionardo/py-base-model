@@ -1,6 +1,5 @@
 import codecs
 import os
-import sys
 
 from setuptools import find_packages, setup
 
@@ -24,7 +23,7 @@ def get_definitions(rel_path, *words):
     dwords = {word: None for word in words}
     for line in read(rel_path).splitlines():
         for word in words:
-            if line.startswith(f'__{word}__'):
+            if line.startswith(f"__{word}__"):
                 delim = '"' if '"' in line else "'"
                 dwords[word] = line.split(delim)[1]
                 break
@@ -34,7 +33,7 @@ def get_definitions(rel_path, *words):
 
 long_description = read('README.md')
 base_folder = 'base_model'
-packages = find_packages(where=base_folder)
+
 _version, _description, _author, _author_email = get_definitions(
     os.path.join(base_folder, '__init__.py'),
     'version',
@@ -43,7 +42,7 @@ _version, _description, _author, _author_email = get_definitions(
     'author_email')
 
 setup(
-    name='base-model-furlan',
+    name='base-model-guiosoft',
     version=_version,
     description=_description,
     long_description=long_description,
@@ -55,7 +54,8 @@ setup(
         "Operating System :: OS Independent",
     ],
     install_requires=[
-        'python-dateutil'
+        'python-dateutil',
+        'orjson'
     ],
     url="https://github.com/guionardo/py-base-model",
     keywords='model',

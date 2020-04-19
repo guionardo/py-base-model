@@ -1,1 +1,2 @@
 python-dateutil==2.8.1
+orjson==2.6.5

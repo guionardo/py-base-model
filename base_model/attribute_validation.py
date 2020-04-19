@@ -102,6 +102,8 @@ class AttributeValidation:
 
         if isinstance(value, self._type):
             return True, value
+        if value is None:
+            return not self.is_required, value
 
         if _type == date:
             success, value = self._normalize_date(value)
@@ -113,12 +115,16 @@ class AttributeValidation:
             success, value = self._normalize_bool(value)
         elif _aggregate_type:
             success, value = self._normalize_aggregator(value, _aggregate_type)
-        else:
+        elif value is not None:
             try:
                 value = _type(value)
                 success = True
             except:
                 success = False
+        elif self.is_required:
+            success = False
+        else:
+            success = True
 
         return success, value
 
@@ -210,9 +216,11 @@ class AttributeValidation:
             normalized_values = dict()
             for key in value:
                 v = value[key]
-                success, key = self.normalize_data(key, self._aggregate_type[0])
+                success, key = self.normalize_data(
+                    key, self._aggregate_type[0])
                 if success:
-                    success, data = self.normalize_data(v, self._aggregate_type[1])
+                    success, data = self.normalize_data(
+                        v, self._aggregate_type[1])
                     normalized_values[key] = None if not success else data
                 if not success:
                     return False, None
