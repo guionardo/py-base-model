@@ -17,5 +17,6 @@ orjson = "*"
 setuptools = "*"
 wheel = "*"
 twine = "*"
+flake8 = "*"
 
 [requires]

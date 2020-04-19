@@ -25,4 +25,4 @@ class TestListBaseModel(unittest.TestCase):
 ]
 }'''
         lsm = ListSubModelModel(test_case)
-        self.assertEqual(len(lsm.submodels),3)
+        self.assertEqual(len(lsm.submodels), 3)

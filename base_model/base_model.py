@@ -57,11 +57,12 @@ class BaseModel:
         normalization_error_attributes = []
         for field_name in self._validations.get_fields():
             field_value = self._get_attribute_value(from_object, field_name)
-            attr_validation: AttributeValidation = self._validations.get_attribute_validation(
-                field_name)
+            attr_validation: AttributeValidation = \
+                self._validations.get_attribute_validation(field_name)
             required_field = attr_validation and attr_validation.is_required
             if required_field and \
-                    (field_value is None or isinstance(field_value, NotFoundAttribute)):
+                    (field_value is None or
+                        isinstance(field_value, NotFoundAttribute)):
                 not_found_attributes.add(field_name)
                 continue
 
@@ -76,8 +77,9 @@ class BaseModel:
                     success = True
                     field_value = attr_validation.get_default(self)
                 else:
-                    success, field_value = attr_validation.normalize_aggregator(
-                        self, field_value)
+                    success, field_value = \
+                        attr_validation.normalize_aggregator(
+                            self, field_value)
 
             else:
                 success, field_value = attr_validation.normalize_data(
@@ -88,14 +90,17 @@ class BaseModel:
                 setattr(self, field_name, field_value)
 
         if len(not_found_attributes) > 0:
-            raise BaseModelException("Missing required attributes '{0}' for model {1}".format(
-                not_found_attributes, get_class_name(self.__class__)
-            ))
+            raise BaseModelException(
+                "Missing required attributes '{0}' for model {1}".format(
+                    not_found_attributes, get_class_name(self.__class__)
+                ))
 
         if len(normalization_error_attributes) > 0:
-            raise BaseModelException("Normalization error on attributes '{0}' for model {1}".format(
-                normalization_error_attributes, get_class_name(self.__class__)
-            ))
+            raise BaseModelException(
+                "Normalization error on attributes '{0}' for model {1}".format(
+                    normalization_error_attributes, get_class_name(
+                        self.__class__)
+                ))
         return True
 
     def validate_from_str(self, from_object):
@@ -105,14 +110,16 @@ class BaseModel:
         try:
             from_object = loads(from_object)
         except Exception as exc:
-            raise BaseModelException("Error on parsing JSON content for model {0}: {1}".format(
-                get_class_name(self.__class__),
-                str(exc)
-            ))
+            raise BaseModelException(
+                "Error on parsing JSON content for model {0}: {1}".format(
+                    get_class_name(self.__class__),
+                    str(exc)
+                ))
         return from_object
 
     @staticmethod
-    def _get_attribute_value(from_object: object, field_name: object) -> object:
+    def _get_attribute_value(from_object: object, field_name: object) \
+            -> object:
         result = NotFoundAttribute()
         if isinstance(from_object, dict):
             if field_name in from_object:

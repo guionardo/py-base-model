@@ -1,7 +1,8 @@
 import unittest
 
 from tests.models.time_fields_model import TimeFieldsModel
-from datetime import date,datetime,time
+from datetime import datetime
+
 
 class TestTimeFieldsModel(unittest.TestCase):
 

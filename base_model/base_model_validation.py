@@ -59,15 +59,17 @@ class BaseModelValidation:
 
     def get_field_type(self, field_name):
         if field_name not in self._members:
-            raise BaseModelException("Field name {0} not found in model {1}".format(
-                field_name,
-                self._class_name))
+            raise BaseModelException("Field name {0} not found in model {1}".
+                                     format(
+                                         field_name,
+                                         self._class_name))
 
         return self._members[field_name]
 
     def get_field_default_value(self, field_name, model_instance):
         if field_name in self._members:
-            validation: AttributeValidation = self._attributes_validations[field_name]
+            validation: AttributeValidation = \
+                self._attributes_validations[field_name]
             return validation.get_default(model_instance)
         return None
 
@@ -90,8 +92,8 @@ class BaseModelValidation:
                 attr_name = details[0].strip()
                 if attr_name in self._attributes_validations:
                     attr_props = ' '.join([d.strip() for d in details[1:]])
-                    self._attributes_validations[attr_name].set_extra_validations(
-                        attr_props)
+                    self._attributes_validations[attr_name].\
+                        set_extra_validations(attr_props)
 
     def _get_aggregator(self, field_name, member_type):
 
@@ -116,9 +118,10 @@ class BaseModelValidation:
                 _aggregate_type = member_type.__args__
 
         else:
-            raise BaseModelException("Invalid type hint {0} for field {1} of model {2}".format(
-                member_type,
-                field_name,
-                self._class_name
-            ))
+            raise BaseModelException(
+                "Invalid type hint {0} for field {1} of model {2}".format(
+                    member_type,
+                    field_name,
+                    self._class_name
+                ))
         return _aggregator_type, _aggregate_type

@@ -3,6 +3,7 @@ from datetime import datetime, date, time
 from dateutil.parser import parse
 
 from base_model.tools import get_class_name, parse_quotes
+from logging import getLogger
 
 
 class AttributeValidation:
@@ -26,7 +27,8 @@ class AttributeValidation:
         '%H:%M:%S.%f'
     ]
 
-    def __init__(self, model_class, attribute_name: str, attribute_type, aggregator_type=None, aggregate_type=None):
+    def __init__(self, model_class, attribute_name: str,
+                 attribute_type, aggregator_type=None, aggregate_type=None):
         self._model_class = model_class
         self._attribute = attribute_name
         self._type = attribute_type
@@ -38,6 +40,8 @@ class AttributeValidation:
         if self._aggregator_type:
             self._default = self.get_aggregator_default_method(
                 self._aggregator_type)
+
+        self._logger = getLogger(__file__)
 
     @property
     def is_required(self):
@@ -93,7 +97,7 @@ class AttributeValidation:
 
         :param value: original value received
         :param _type: type for convert data (default = self._type)
-        :param _aggregate_type: 
+        :param _aggregate_type:
         :returns: (bool success, object converted value)
         """
         if _type is None:
@@ -119,7 +123,14 @@ class AttributeValidation:
             try:
                 value = _type(value)
                 success = True
-            except:
+            except Exception as exc:
+                self._logger.debug(
+                    'BASE_MODEL.AttributeValidation %s.%s %s(%s) %s',
+                    self._model_class,
+                    self._attribute,
+                    _type,
+                    value,
+                    str(exc))
                 success = False
         elif self.is_required:
             success = False
@@ -131,7 +142,13 @@ class AttributeValidation:
     def _normalize_bool(self, value) -> bool:
         try:
             return True, str(value).upper() in ['TRUE', 'T', 'Y', '1']
-        except:
+        except Exception as exc:
+            self._logger.debug(
+                'BASE_MODEL.AttributeValidation '
+                '_normalize_bool %s.%s %s',
+                self._model_class,
+                self._attribute,
+                str(exc))
             return False, None
 
     def _normalize_date(self, value) -> date:
@@ -139,13 +156,25 @@ class AttributeValidation:
             try:
                 _date = datetime.strptime(value, format)
                 return True, _date.date()
-            except:
+            except Exception as exc:
                 # try another
-                pass
+                self._logger.debug(
+                    'BASE_MODEL.AttributeValidation '
+                    '_normalize_date %s.%s %s',
+                    self._model_class,
+                    self._attribute,
+                    str(exc))
+
         try:
             _date = parse(value)
             return True, _date.date()
-        except:
+        except Exception as exc:
+            self._logger.debug(
+                'BASE_MODEL.AttributeValidation '
+                '_normalize_date %s.%s %s',
+                self._model_class,
+                self._attribute,
+                str(exc))
             return False, None
 
     def _normalize_datetime(self, value):
@@ -153,13 +182,24 @@ class AttributeValidation:
             try:
                 _date = datetime.strptime(value, format)
                 return True, _date
-            except:
+            except Exception as exc:
                 # try another
-                pass
+                self._logger.debug(
+                    'BASE_MODEL.AttributeValidation '
+                    '_normalize_datetime %s.%s %s',
+                    self._model_class,
+                    self._attribute,
+                    str(exc))
         try:
             _date = parse(value)
             return True, _date
-        except:
+        except Exception as exc:
+            self._logger.debug(
+                'BASE_MODEL.AttributeValidation '
+                '_normalize_datetime %s.%s %s',
+                self._model_class,
+                self._attribute,
+                str(exc))
             return False, None
 
     def _normalize_time(self, value):
@@ -167,17 +207,29 @@ class AttributeValidation:
             try:
                 _time = datetime.strptime(value, format)
                 return True, _time.time()
-            except:
+            except Exception as exc:
                 # try another
-                pass
+                self._logger.debug(
+                    'BASE_MODEL.AttributeValidation '
+                    '_normalize_time %s.%s %s',
+                    self._model_class,
+                    self._attribute,
+                    str(exc))
 
         try:
             _time = parse(value)
             return True, _time.time()
-        except:
+        except Exception as exc:
+            self._logger.debug(
+                'BASE_MODEL.AttributeValidation '
+                '_normalize_time %s.%s %s',
+                self._model_class,
+                self._attribute,
+                str(exc))
             return False, None
 
-    def normalize_aggregator(self, model_instance, value, _aggregator_type=None):
+    def normalize_aggregator(self, model_instance,
+                             value, _aggregator_type=None):
         if value is None:
             return True, self.get_default(model_instance)
         if _aggregator_type is None:
@@ -205,7 +257,13 @@ class AttributeValidation:
                 normalized_values.append(None if not success else data)
 
             return True, normalized_values
-        except:
+        except Exception as exc:
+            self._logger.debug(
+                'BASE_MODEL.AttributeValidation '
+                '_normalize_aggregator_dict %s.%s %s',
+                self._model_class,
+                self._attribute,
+                str(exc))
             return False, None
 
     def _normalize_aggregator_dict(self, model_instance, value):
@@ -225,7 +283,13 @@ class AttributeValidation:
                 if not success:
                     return False, None
             return True, normalized_values
-        except:
+        except Exception as exc:
+            self._logger.debug(
+                'BASE_MODEL.AttributeValidation '
+                '_normalize_aggregator_dict %s.%s %s',
+                self._model_class,
+                self._attribute,
+                str(exc))
             return False, None
 
     def _normalize_aggregator_set(self, model_instance, value):
