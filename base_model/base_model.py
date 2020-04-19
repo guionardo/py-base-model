@@ -34,7 +34,7 @@ class BaseModel:
         return result
 
     def to_json(self):
-        return dumps(self.to_dict(), default=str)
+        return dumps(self.to_dict())
 
     def get_attribute_value(self, field_name):
         attr_validation: AttributeValidation = \
