@@ -14,8 +14,7 @@ jobs:
         python-version: 3.7
     - name: Generate coverage report
       run: |
-        pip install pytest
-        pip install pytest-cov python-dateutil
+        pip install -r requirements.testing.txt        
         pytest --cov=./ --cov-report=xml
     - name: Upload coverage to Codecov  
       uses: codecov/codecov-action@v1
