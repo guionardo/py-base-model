@@ -8,7 +8,8 @@ class ListBaseModel:
     def __init__(self, base_model_class, from_object=None):
         if not isinstance(base_model_class, type):
             raise BaseModelException(
-                'base_model_class expected to be a type ({0})'.format(base_model_class))
+                'base_model_class expected to be a type ({0})'
+                .format(base_model_class))
         self._items = []
         self._base_model_class = base_model_class
         if from_object:
@@ -23,8 +24,10 @@ class ListBaseModel:
         :param internal_conversion: Parses objects, to primitive types
         """
         return [
-            item.to_dict() if internal_conversion and hasattr(item, 'to_dict') else
-            item.to_list(internal_conversion) if internal_conversion and hasattr(item, 'to_list') else
+            item.to_dict()
+            if internal_conversion and hasattr(item, 'to_dict') else
+            item.to_list(internal_conversion)
+            if internal_conversion and hasattr(item, 'to_list') else
             item for item in self._items]
 
     def to_json(self):
@@ -38,10 +41,11 @@ class ListBaseModel:
             from_object = loads(from_object)
 
         except Exception as exc:
-            raise BaseModelException("Error on parsing JSON content for model {0}: {1}".format(
-                get_class_name(self.__class__),
-                str(exc)
-            ))
+            raise BaseModelException(
+                "Error on parsing JSON content for model {0}: {1}".format(
+                    get_class_name(self.__class__),
+                    str(exc)
+                ))
         return from_object
 
     def load_from_object(self, from_object):

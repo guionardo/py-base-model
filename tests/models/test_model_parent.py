@@ -15,7 +15,7 @@ class GranChildModel(BaseModel):
 class ChildModel(BaseModel):
     """
     id: required
-    name: required    
+    name: required
     """
     id: int
     name: str
@@ -25,7 +25,7 @@ class ChildModel(BaseModel):
 class ParentModel(BaseModel):
     """
     id: required
-    name: required    
+    name: required
     """
     id: int
     name: str
